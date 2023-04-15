@@ -1,7 +1,7 @@
 ﻿using FanControl.Acer_PO3630.Acer;
 using FanControl.Plugins;
 
-namespace FanControl.Acer_PO3630
+namespace FanControl.Acer_PO3630.Plugin
 {
     internal class ControlSensor : IPluginControlSensor
     {
@@ -13,12 +13,25 @@ namespace FanControl.Acer_PO3630
 
         public Acer.Enums.Fan_Index fan { get; set; }
 
+        public int iUpdateOn { get; set; }
+        private int iUpdateCount { get; set; }
+
         /// <summary>
         /// Update the fan speed percentage the system thinks the fan is doing.
         /// </summary>
         public void Update()
         {
-            fan.Get_FanPercentage();
+            iUpdateCount++;
+
+            if (iUpdateCount == iUpdateOn)
+            {
+                fan.Get_FanPercentage();
+            }
+
+            if (iUpdateCount == 10)
+            {
+                iUpdateCount = 0;
+            }
         }
 
         /// <summary>
@@ -27,7 +40,11 @@ namespace FanControl.Acer_PO3630
         /// <param name="value">The percentage speed to run the fan.</param>
         public void Set(float value)
         {
-            Value = fan.Set_FanPercentage(value);
+            if (iUpdateCount == iUpdateOn)
+            {
+                //Value = fan.Set_FanPercentage(value);
+                fan.Set_FanPercentage(value);
+            }
         }
 
         /// <summary>

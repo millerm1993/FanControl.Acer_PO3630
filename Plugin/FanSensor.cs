@@ -1,7 +1,7 @@
 ﻿using FanControl.Acer_PO3630.Acer;
 using FanControl.Plugins;
 
-namespace FanControl.Acer_PO3630
+namespace FanControl.Acer_PO3630.Plugin
 {
     internal class FanSensor : IPluginSensor
     {
@@ -13,12 +13,25 @@ namespace FanControl.Acer_PO3630
 
         public Acer.Enums.Fan_Index fan { get; set; }
 
+        public int iUpdateOn { get; set; }
+        private int iUpdateCount { get; set; }
+
         /// <summary>
         /// Update the fan RPM the system thinks the fan is doing.
         /// </summary>
         public void Update()
         {
-            Value = fan.Get_FanRpm();
+            iUpdateCount++;
+
+            if (iUpdateCount == iUpdateOn)
+            {
+                Value = fan.Get_FanRpm();
+            }
+
+            if (iUpdateCount == 10)
+            {
+                iUpdateCount = 0;
+            }
         }
     }
 }

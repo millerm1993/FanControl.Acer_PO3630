@@ -6,6 +6,31 @@ namespace FanControl.Acer_PO3630.Acer
     public static class Wrapper
     {
         /// <summary>
+        /// Returns the "System" temperature.
+        /// </summary>
+        public static float Get_SysTemp(this Temp_Index tempIndex)
+        {
+            int iSysTemp = 0;
+            SystemInfoData_Index info_Index = SystemInfoData_Index.None;
+
+
+            switch (tempIndex)
+            {
+                case Temp_Index.System:
+                    info_Index = SystemInfoData_Index.System_Temp;
+                    break;
+            }
+
+            if (info_Index == SystemInfoData_Index.None)
+            {
+                return 0;
+            }
+
+            Commands.Get_SystemInfo(ref iSysTemp, info_Index);
+            return iSysTemp;
+        }
+
+        /// <summary>
         /// Update the fan RPM the system thinks the fan is doing.
         /// </summary>
         public static float Get_FanRpm(this Fan_Index fanIndex)

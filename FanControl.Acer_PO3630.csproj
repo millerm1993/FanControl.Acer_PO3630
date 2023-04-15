@@ -43,17 +43,16 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="TsDotNetLib">
-      <HintPath>lib\TsDotNetLib.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Acer\Commands.cs" />
     <Compile Include="Acer\Enums.cs" />
+    <Compile Include="Acer\IPCMethods.cs" />
     <Compile Include="Acer\Wrapper.cs" />
-    <Compile Include="FanSensor.cs" />
-    <Compile Include="Plugin.cs" />
-    <Compile Include="ControlSensor.cs" />
+    <Compile Include="Plugin\FanSensor.cs" />
+    <Compile Include="Plugin\Plugin.cs" />
+    <Compile Include="Plugin\ControlSensor.cs" />
+    <Compile Include="Plugin\TempSensor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

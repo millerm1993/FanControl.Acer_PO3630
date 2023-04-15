@@ -2,11 +2,10 @@
 using System.IO.Pipes;
 using System.Threading;
 using System.Threading.Tasks;
-using TsDotNetLib;
 
 namespace FanControl.Acer_PO3630.Acer
 {
-    public class Commands
+    internal class Commands
     {
         /// <summary>
         /// Remains from testing.
@@ -60,17 +59,24 @@ namespace FanControl.Acer_PO3630.Acer
         {
             try
             {
-                NamedPipeClientStream cline_stream = new NamedPipeClientStream(".", "predatorsense_service_namedpipe", PipeDirection.InOut);
-                cline_stream.Connect();
-                int num = (int)await Task.Run<uint>((Func<uint>)(() =>
+                int num = 0;
+                using (NamedPipeClientStream cline_stream = new NamedPipeClientStream(".", "predatorsense_service_namedpipe", PipeDirection.InOut))
                 {
-                    IPCMethods.SendCommandByNamedPipe(cline_stream, 10, (object)data);
-                    cline_stream.WaitForPipeDrain();
-                    byte[] buffer = new byte[9];
-                    cline_stream.Read(buffer, 0, buffer.Length);
-                    return BitConverter.ToUInt32(buffer, 5);
-                })).ConfigureAwait(false);
-                cline_stream.Close();
+                    cline_stream.Connect();
+
+                    num = (int)await Task.Run<uint>((Func<uint>)(() =>
+                    {
+                        IPCMethods.SendCommandByNamedPipe(cline_stream, 10, (object)data);
+                        cline_stream.WaitForPipeDrain();
+                        byte[] buffer = new byte[9];
+                        cline_stream.Read(buffer, 0, buffer.Length);
+
+                        return BitConverter.ToUInt32(buffer, 5);
+                    })).ConfigureAwait(false);
+
+                    cline_stream.Close();
+                }
+
                 return (uint)num;
             }
             catch (Exception ex)
@@ -89,17 +95,24 @@ namespace FanControl.Acer_PO3630.Acer
         {
             try
             {
-                NamedPipeClientStream cline_stream = new NamedPipeClientStream(".", "predatorsense_service_namedpipe", PipeDirection.InOut);
-                cline_stream.Connect();
-                long systemInformation = (long)await Task.Run<ulong>((Func<ulong>)(() =>
+                long systemInformation = 0;
+                using (NamedPipeClientStream cline_stream = new NamedPipeClientStream(".", "predatorsense_service_namedpipe", PipeDirection.InOut))
                 {
-                    IPCMethods.SendCommandByNamedPipe(cline_stream, 9, (object)intput);
-                    cline_stream.WaitForPipeDrain();
-                    byte[] buffer = new byte[13];
-                    cline_stream.Read(buffer, 0, buffer.Length);
-                    return BitConverter.ToUInt64(buffer, 5);
-                })).ConfigureAwait(false);
-                cline_stream.Close();
+                    cline_stream.Connect();
+
+                    systemInformation = (long)await Task.Run<ulong>((Func<ulong>)(() =>
+                    {
+                        IPCMethods.SendCommandByNamedPipe(cline_stream, 9, (object)intput);
+                        cline_stream.WaitForPipeDrain();
+                        byte[] buffer = new byte[13];
+                        cline_stream.Read(buffer, 0, buffer.Length);
+
+                        return BitConverter.ToUInt64(buffer, 5);
+                    })).ConfigureAwait(false);
+
+                    cline_stream.Close();
+                }
+
                 return (ulong)systemInformation;
             }
             catch (Exception ex)

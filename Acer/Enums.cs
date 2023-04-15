@@ -13,6 +13,14 @@
         }
 
         /// <summary>
+        /// Which fan are we controlling.
+        /// </summary>
+        public enum Temp_Index
+        {
+            System = 1
+        }
+
+        /// <summary>
         /// Datapoints from PredatorSense.exe that are to be used in the named pipe.
         /// </summary>
         public enum SystemInfoData_Index
