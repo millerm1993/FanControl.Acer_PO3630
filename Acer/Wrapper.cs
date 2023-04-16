@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using static FanControl.Acer_PO3630.Acer.Enums;
 
 namespace FanControl.Acer_PO3630.Acer
@@ -8,7 +9,7 @@ namespace FanControl.Acer_PO3630.Acer
         /// <summary>
         /// Returns the "System" temperature.
         /// </summary>
-        public static float Get_SysTemp(this Temp_Index tempIndex)
+        public static async Task<float> Get_SysTemp(this Temp_Index tempIndex)
         {
             int iSysTemp = 0;
             SystemInfoData_Index info_Index = SystemInfoData_Index.None;
@@ -26,14 +27,14 @@ namespace FanControl.Acer_PO3630.Acer
                 return 0;
             }
 
-            Commands.Get_SystemInfo(ref iSysTemp, info_Index);
+            iSysTemp = await Commands.Get_AcerSysInfo(info_Index);
             return iSysTemp;
         }
 
         /// <summary>
         /// Update the fan RPM the system thinks the fan is doing.
         /// </summary>
-        public static float Get_FanRpm(this Fan_Index fanIndex)
+        public static async Task<float> Get_FanRpm(this Fan_Index fanIndex)
         {
             int iRpm = 0;
             SystemInfoData_Index info_Index = SystemInfoData_Index.None;
@@ -56,14 +57,15 @@ namespace FanControl.Acer_PO3630.Acer
                 return 0;
             }
 
-            Commands.Get_SystemInfo(ref iRpm, info_Index);
+            iRpm = await Commands.Get_AcerSysInfo(info_Index);
+
             return Convert.ToSingle((double)iRpm);
         }
 
         /// <summary>
         /// Update the fan speed percentage the system thinks the fan is doing.
         /// </summary>
-        public static int Get_FanPercentage(this Fan_Index fanIndex)
+        public static async Task<int> Get_FanPercentage(this Fan_Index fanIndex)
         {
             int iPercent = 0;
             SystemInfoData_Index info_Index = SystemInfoData_Index.None;
@@ -86,7 +88,7 @@ namespace FanControl.Acer_PO3630.Acer
                 return 0;
             }
 
-            Commands.Get_SystemInfo(ref iPercent, info_Index);
+            iPercent = await Commands.Get_AcerSysInfo(info_Index);
             return iPercent;
         }
 
@@ -94,9 +96,8 @@ namespace FanControl.Acer_PO3630.Acer
         /// Set a manual speed value.
         /// </summary>
         /// <param name="value">The percentage speed to run the fan.</param>
-        public static float Set_FanPercentage(this Fan_Index fanIndex, float value)
+        public static async Task<float> Set_FanPercentage(this Fan_Index fanIndex, float value)
         {
-            ulong input = 0;
             ulong myValue;
 
             try
@@ -108,45 +109,47 @@ namespace FanControl.Acer_PO3630.Acer
                 return 0;
             }
 
+            //Build the Command Array
+            byte[] FanBytes = new byte[8];
             switch (fanIndex)
             {
                 case Fan_Index.FrontFan:
-                    input = 4UL | (myValue << 24) | 1099511627776UL;
-                    break;
                 case Fan_Index.RearFan:
-                    input = 4UL | (myValue << 24) | 2199023255552UL;
+                    FanBytes[0] = 4;
+                    FanBytes[3] = (byte)myValue;
+                    FanBytes[5] = (byte)fanIndex;
                     break;
                 case Fan_Index.CPUFan:
-                    input = 2UL | myValue << 16;
+                    FanBytes[0] = 2;
+                    FanBytes[2] = (byte)myValue;
                     break;
+                default:
+                    return 0;
             }
 
-            if (input == 0)
-            {
-                return 0;
-            }
-
-            Commands.Set_AcerSysConfig(input).GetAwaiter();
+            await Commands.Set_AcerSysConfig(FanBytes);
             return value;
         }
 
         /// <summary>
         /// Set the fan back to automatic control.
         /// </summary>
-        public static void Set_FanAuto(this Fan_Index fanIndex)
+        public static async Task Set_FanAuto(this Fan_Index fanIndex)
         {
             ulong input = 0;
 
+            byte[] FanBytes = new byte[8];
             switch (fanIndex)
             {
                 case Fan_Index.FrontFan:
-                    input = 1103789817860UL;
-                    break;
                 case Fan_Index.RearFan:
-                    input = 2203301445636UL;
+                    FanBytes[0] = 4;
+                    FanBytes[3] = 255;
+                    FanBytes[5] = (byte)fanIndex;
                     break;
                 case Fan_Index.CPUFan:
-                    input = 2UL | (ulong)byte.MaxValue << 16;
+                    FanBytes[0] = 2;
+                    FanBytes[2] = 255;
                     break;
             }
 
@@ -155,7 +158,37 @@ namespace FanControl.Acer_PO3630.Acer
                 return;
             }
 
-            Commands.Set_AcerSysConfig(input).GetAwaiter();
+            await Commands.Set_AcerSysConfig(FanBytes);
+        }
+
+        /// <summary>
+        /// Set the fan back to maximum speed.
+        /// </summary>
+        public static async Task Set_FanMax(this Fan_Index fanIndex)
+        {
+            ulong input = 0;
+
+            byte[] FanBytes = new byte[8];
+            switch (fanIndex)
+            {
+                case Fan_Index.FrontFan:
+                case Fan_Index.RearFan:
+                    FanBytes[0] = 4;
+                    FanBytes[3] = 254;
+                    FanBytes[5] = (byte)fanIndex;
+                    break;
+                case Fan_Index.CPUFan:
+                    FanBytes[0] = 2;
+                    FanBytes[2] = 254;
+                    break;
+            }
+
+            if (input == 0)
+            {
+                return;
+            }
+
+            await Commands.Set_AcerSysConfig(FanBytes);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace FanControl.Acer_PO3630.Plugin
 
         public Acer.Enums.Fan_Index fan { get; set; }
 
-        public int iUpdateOn { get; set; }
+        public int iIndex { get; set; }
         private int iUpdateCount { get; set; }
 
         /// <summary>
@@ -23,12 +23,12 @@ namespace FanControl.Acer_PO3630.Plugin
         {
             iUpdateCount++;
 
-            if (iUpdateCount == iUpdateOn)
+            if (iUpdateCount == Plugin.GetPos(iIndex))
             {
-                fan.Get_FanPercentage();
+                Value = fan.Get_FanPercentage().Result;
             }
 
-            if (iUpdateCount == 10)
+            if (iUpdateCount == Plugin.GetMax())
             {
                 iUpdateCount = 0;
             }
@@ -38,21 +38,18 @@ namespace FanControl.Acer_PO3630.Plugin
         /// Set a manual speed value.
         /// </summary>
         /// <param name="value">The percentage speed to run the fan.</param>
-        public void Set(float value)
+        public async void Set(float value)
         {
-            if (iUpdateCount == iUpdateOn)
-            {
-                //Value = fan.Set_FanPercentage(value);
-                fan.Set_FanPercentage(value);
-            }
+            //Value = fan.Set_FanPercentage(value);
+            await fan.Set_FanPercentage(value);
         }
 
         /// <summary>
         /// Set the fan back to automatic control.
         /// </summary>
-        public void Reset()
+        public async void Reset()
         {
-            fan.Set_FanAuto();
+            await fan.Set_FanAuto();
         }
     }
 }

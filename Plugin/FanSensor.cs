@@ -13,7 +13,7 @@ namespace FanControl.Acer_PO3630.Plugin
 
         public Acer.Enums.Fan_Index fan { get; set; }
 
-        public int iUpdateOn { get; set; }
+        public int iIndex { get; set; }
         private int iUpdateCount { get; set; }
 
         /// <summary>
@@ -23,12 +23,12 @@ namespace FanControl.Acer_PO3630.Plugin
         {
             iUpdateCount++;
 
-            if (iUpdateCount == iUpdateOn)
+            if (iUpdateCount == Plugin.GetPos(iIndex))
             {
-                Value = fan.Get_FanRpm();
+                Value = fan.Get_FanRpm().Result;
             }
 
-            if (iUpdateCount == 10)
+            if (iUpdateCount == Plugin.GetMax())
             {
                 iUpdateCount = 0;
             }

@@ -1,10 +1,5 @@
 ﻿using FanControl.Acer_PO3630.Acer;
 using FanControl.Plugins;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FanControl.Acer_PO3630.Plugin
 {
@@ -18,7 +13,7 @@ namespace FanControl.Acer_PO3630.Plugin
 
         public Acer.Enums.Temp_Index temp { get; set; }
 
-        public int iUpdateOn { get; set; }
+        public int iIndex { get; set; }
         private int iUpdateCount { get; set; }
 
         /// <summary>
@@ -28,12 +23,12 @@ namespace FanControl.Acer_PO3630.Plugin
         {
             iUpdateCount++;
 
-            if (iUpdateCount == iUpdateOn)
+            if (iUpdateCount == Plugin.GetPos(iIndex))
             {
-                Value = temp.Get_SysTemp();
+                Value = temp.Get_SysTemp().Result;
             }
 
-            if (iUpdateCount == 10)
+            if (iUpdateCount == Plugin.GetMax())
             {
                 iUpdateCount = 0;
             }

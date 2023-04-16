@@ -47,7 +47,6 @@
   <ItemGroup>
     <Compile Include="Acer\Commands.cs" />
     <Compile Include="Acer\Enums.cs" />
-    <Compile Include="Acer\IPCMethods.cs" />
     <Compile Include="Acer\Wrapper.cs" />
     <Compile Include="Plugin\FanSensor.cs" />
     <Compile Include="Plugin\Plugin.cs" />

@@ -21,6 +21,15 @@
         }
 
         /// <summary>
+        /// Which fan are we controlling.
+        /// </summary>
+        public enum PredetorMessageType_Index
+        {
+            Read = 9,
+            Command = 10
+        }
+
+        /// <summary>
         /// Datapoints from PredatorSense.exe that are to be used in the named pipe.
         /// </summary>
         public enum SystemInfoData_Index
