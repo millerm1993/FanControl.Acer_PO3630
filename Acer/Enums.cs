@@ -23,9 +23,9 @@
         /// <summary>
         /// Which fan are we controlling.
         /// </summary>
-        public enum PredetorMessageType_Index
+        public enum AcerMessageType_Index
         {
-            Read = 9,
+            Request = 9,
             Command = 10
         }
 

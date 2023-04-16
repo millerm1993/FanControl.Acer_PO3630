@@ -8,6 +8,27 @@ namespace FanControl.Acer_PO3630.Acer
     internal class Commands
     {
         /// <summary>
+        /// Builds the data packet to be send over the named pipe.
+        /// </summary>
+        /// <param name="messageType"></param>
+        /// <param name="messageBytes"></param>
+        /// <returns>The data packet.</returns>
+        public static byte[] DataPacketBuilder(AcerMessageType_Index messageType, byte[] messageBytes)
+        {
+            //Calculate the length of the data packet
+            int dataPacketSize = 7 + messageBytes.Length;
+
+            //Build Data Packet
+            byte[] packetBytes = new byte[dataPacketSize];
+            packetBytes[0] = (byte)messageType;
+            packetBytes[2] = 1;   // Number of messages in packet
+            packetBytes[3] = (byte)messageBytes.Length;
+            Array.Copy(messageBytes, 0, packetBytes, 7, messageBytes.Length);
+
+            return packetBytes;
+        }
+
+        /// <summary>
         /// Sets system information.
         /// Equates to SetAcerGamingSystemConfiguration() in PredatorSense.exe.
         /// </summary>
@@ -16,11 +37,7 @@ namespace FanControl.Acer_PO3630.Acer
         public static async Task<uint> Set_AcerSysConfig(byte[] commandBytes)
         {
             //Build Data Packet
-            byte[] packetBytes = new byte[15];
-            packetBytes[0] = (byte)PredetorMessageType_Index.Command;
-            packetBytes[2] = 1;   // Number of messages in packet
-            packetBytes[3] = (byte)commandBytes.Length;
-            Array.Copy(commandBytes, 0, packetBytes, 7, commandBytes.Length);
+            byte[] packetBytes = DataPacketBuilder(AcerMessageType_Index.Command, commandBytes);
 
             try
             {
@@ -54,19 +71,17 @@ namespace FanControl.Acer_PO3630.Acer
         /// </summary>
         /// <param name="data">The payload to read from the named pipe.</param>
         /// <returns>The value of the data that was requested.</returns>
-        public static async Task<int> Get_AcerSysInfo(Acer.Enums.SystemInfoData_Index dataRequested)
+        public static async Task<int> Get_AcerSysInfo(SystemInfoData_Index dataRequested)
         {
-            uint input = (uint)(1 | (int)dataRequested << 8);
-            var inputBytes = BitConverter.GetBytes(input);
+            //Build the Request
+            byte[] requestBytes = new byte[4];
+            requestBytes[0] = 1;
+            requestBytes[1] = (byte)dataRequested;
 
             //Build Data Packet
-            byte[] packetBytes = new byte[11];
-            packetBytes[0] = (byte)PredetorMessageType_Index.Read;
-            packetBytes[2] = // Number of messages in packet;
-            packetBytes[3] = (byte)inputBytes.Length;
-            Array.Copy(inputBytes, 0, packetBytes, 7, inputBytes.Length);
+            byte[] packetBytes = DataPacketBuilder(AcerMessageType_Index.Request, requestBytes);
 
-            long systemInformation = 0;
+            long result = 0;
             try
             {
                 using (NamedPipeClientStream pipeStream = new NamedPipeClientStream(".", "predatorsense_service_namedpipe", PipeDirection.InOut))
@@ -79,7 +94,7 @@ namespace FanControl.Acer_PO3630.Acer
                     byte[] buffer = new byte[13];
                     pipeStream.Read(buffer, 0, buffer.Length);
 
-                    systemInformation = (long)BitConverter.ToUInt64(buffer, 5);
+                    result = (long)BitConverter.ToUInt64(buffer, 5);
 
                     pipeStream.Close();
                 }
@@ -89,14 +104,14 @@ namespace FanControl.Acer_PO3630.Acer
                 return -1;
             }
 
-            ulong result = (ulong)systemInformation;
-
             if (((long)result & (long)byte.MaxValue) != 0L)
             {
                 return -1;
             }
 
-            return (int)((long)(result >> 8) & (long)ushort.MaxValue);
+            var rtn = (int)((long)(result >> 8) & (long)ushort.MaxValue);
+
+            return rtn;
         }
     }
 }

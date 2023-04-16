@@ -110,24 +110,24 @@ namespace FanControl.Acer_PO3630.Acer
             }
 
             //Build the Command Array
-            byte[] FanBytes = new byte[8];
+            byte[] commandBytes = new byte[8];
             switch (fanIndex)
             {
                 case Fan_Index.FrontFan:
                 case Fan_Index.RearFan:
-                    FanBytes[0] = 4;
-                    FanBytes[3] = (byte)myValue;
-                    FanBytes[5] = (byte)fanIndex;
+                    commandBytes[0] = 4;
+                    commandBytes[3] = (byte)myValue;
+                    commandBytes[5] = (byte)fanIndex;
                     break;
                 case Fan_Index.CPUFan:
-                    FanBytes[0] = 2;
-                    FanBytes[2] = (byte)myValue;
+                    commandBytes[0] = 2;
+                    commandBytes[2] = (byte)myValue;
                     break;
                 default:
                     return 0;
             }
 
-            await Commands.Set_AcerSysConfig(FanBytes);
+            await Commands.Set_AcerSysConfig(commandBytes);
             return value;
         }
 
@@ -138,18 +138,18 @@ namespace FanControl.Acer_PO3630.Acer
         {
             ulong input = 0;
 
-            byte[] FanBytes = new byte[8];
+            byte[] CommandBytes = new byte[8];
             switch (fanIndex)
             {
                 case Fan_Index.FrontFan:
                 case Fan_Index.RearFan:
-                    FanBytes[0] = 4;
-                    FanBytes[3] = 255;
-                    FanBytes[5] = (byte)fanIndex;
+                    CommandBytes[0] = 4;
+                    CommandBytes[3] = 255;
+                    CommandBytes[5] = (byte)fanIndex;
                     break;
                 case Fan_Index.CPUFan:
-                    FanBytes[0] = 2;
-                    FanBytes[2] = 255;
+                    CommandBytes[0] = 2;
+                    CommandBytes[2] = 255;
                     break;
             }
 
@@ -158,7 +158,7 @@ namespace FanControl.Acer_PO3630.Acer
                 return;
             }
 
-            await Commands.Set_AcerSysConfig(FanBytes);
+            await Commands.Set_AcerSysConfig(CommandBytes);
         }
 
         /// <summary>
@@ -168,18 +168,18 @@ namespace FanControl.Acer_PO3630.Acer
         {
             ulong input = 0;
 
-            byte[] FanBytes = new byte[8];
+            byte[] commandBytes = new byte[8];
             switch (fanIndex)
             {
                 case Fan_Index.FrontFan:
                 case Fan_Index.RearFan:
-                    FanBytes[0] = 4;
-                    FanBytes[3] = 254;
-                    FanBytes[5] = (byte)fanIndex;
+                    commandBytes[0] = 4;
+                    commandBytes[3] = 254;
+                    commandBytes[5] = (byte)fanIndex;
                     break;
                 case Fan_Index.CPUFan:
-                    FanBytes[0] = 2;
-                    FanBytes[2] = 254;
+                    commandBytes[0] = 2;
+                    commandBytes[2] = 254;
                     break;
             }
 
@@ -188,7 +188,7 @@ namespace FanControl.Acer_PO3630.Acer
                 return;
             }
 
-            await Commands.Set_AcerSysConfig(FanBytes);
+            await Commands.Set_AcerSysConfig(commandBytes);
         }
     }
 }
