@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO.Pipes;
+using System.Threading;
 using System.Threading.Tasks;
 using static FanControl.Acer_PO3630.Acer.Enums;
 
@@ -30,7 +31,7 @@ namespace FanControl.Acer_PO3630.Acer
         /// </summary>
         /// <param name="data">The payload to read from the named pipe.</param>
         /// <returns>The value of the data that was requested.</returns>
-        public static async Task<int> Get_AcerSysInfo(SystemInfoData_Index dataRequested)
+        public static async Task<int> Get_AcerSysInfo(AcerSysInfo_Index dataRequested)
         {
             //Build the request
             byte[] requestBytes = new byte[4];
@@ -82,11 +83,15 @@ namespace FanControl.Acer_PO3630.Acer
             {
                 using (NamedPipeClientStream pipeStream = new NamedPipeClientStream(".", "predatorsense_service_namedpipe", PipeDirection.InOut))
                 {
-                    pipeStream.Connect();
+                    pipeStream.Connect(250);
+                    if (!pipeStream.IsConnected)
+                    {
+                        throw new Exception("Could not connect to Predator Service.");
+                    }
 
                     pipeStream.Write(packetBytes, 0, packetBytes.Length);
 
-                    pipeStream.WaitForPipeDrain();
+                    WaitForPipeDrainWithTimeout(pipeStream, 1000);
 
                     byte[] buffer = new byte[13];
                     pipeStream.Read(buffer, 0, buffer.Length);
@@ -94,14 +99,49 @@ namespace FanControl.Acer_PO3630.Acer
                     result = (long)BitConverter.ToUInt64(buffer, 5);
 
                     pipeStream.Close();
+                    pipeStream.Dispose();
                 }
             }
             catch (Exception ex)
             {
-                return -1;
+                throw;
             }
 
             return result;
+        }
+
+        public static void WaitForPipeDrainWithTimeout(NamedPipeClientStream pipe, int timeoutMilliseconds)
+        {
+            var tcs = new TaskCompletionSource<bool>();
+
+            // Start a new thread to wait for pipe drain
+            ThreadPool.QueueUserWorkItem(_ =>
+            {
+                try
+                {
+                    pipe.WaitForPipeDrain();
+                    tcs.TrySetResult(true);
+                }
+                catch (Exception ex)
+                {
+                    if (!tcs.TrySetException(ex))
+                    {
+                        throw;
+                    };
+                }
+            });
+
+            // Wait for the task to complete, with a timeout
+            if (!tcs.Task.Wait(timeoutMilliseconds))
+            {
+                throw new TimeoutException("Predator Service did not read data packet in a timely manner.");
+            }
+
+            // If the task completed with an exception, rethrow it
+            if (tcs.Task.IsFaulted)
+            {
+                throw tcs.Task.Exception;
+            }
         }
     }
 }

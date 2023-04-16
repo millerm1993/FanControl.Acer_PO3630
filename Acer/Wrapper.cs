@@ -12,17 +12,17 @@ namespace FanControl.Acer_PO3630.Acer
         public static async Task<float> Get_SysTemp(this Temp_Index tempIndex)
         {
             int iSysTemp = 0;
-            SystemInfoData_Index info_Index = SystemInfoData_Index.None;
+            AcerSysInfo_Index info_Index = AcerSysInfo_Index.None;
 
 
             switch (tempIndex)
             {
                 case Temp_Index.System:
-                    info_Index = SystemInfoData_Index.System_Temp;
+                    info_Index = AcerSysInfo_Index.System_Temp;
                     break;
             }
 
-            if (info_Index == SystemInfoData_Index.None)
+            if (info_Index == AcerSysInfo_Index.None)
             {
                 return 0;
             }
@@ -37,22 +37,22 @@ namespace FanControl.Acer_PO3630.Acer
         public static async Task<float> Get_FanRpm(this Fan_Index fanIndex)
         {
             int iRpm = 0;
-            SystemInfoData_Index info_Index = SystemInfoData_Index.None;
+            AcerSysInfo_Index info_Index = AcerSysInfo_Index.None;
 
             switch (fanIndex)
             {
                 case Fan_Index.FrontFan:
-                    info_Index = SystemInfoData_Index.System_FanRpm_1;
+                    info_Index = AcerSysInfo_Index.System_FanRpm_1;
                     break;
                 case Fan_Index.RearFan:
-                    info_Index = SystemInfoData_Index.System_FanRpm_2;
+                    info_Index = AcerSysInfo_Index.System_FanRpm_2;
                     break;
                 case Fan_Index.CPUFan:
-                    info_Index = SystemInfoData_Index.CPU_FanRpm;
+                    info_Index = AcerSysInfo_Index.CPU_FanRpm;
                     break;
             }
 
-            if (info_Index == SystemInfoData_Index.None)
+            if (info_Index == AcerSysInfo_Index.None)
             {
                 return 0;
             }
@@ -68,22 +68,22 @@ namespace FanControl.Acer_PO3630.Acer
         public static async Task<int> Get_FanPercentage(this Fan_Index fanIndex)
         {
             int iPercent = 0;
-            SystemInfoData_Index info_Index = SystemInfoData_Index.None;
+            AcerSysInfo_Index info_Index = AcerSysInfo_Index.None;
 
             switch (fanIndex)
             {
                 case Fan_Index.FrontFan:
-                    info_Index = SystemInfoData_Index.System_FanPercent_1;
+                    info_Index = AcerSysInfo_Index.System_FanPercent_1;
                     break;
                 case Fan_Index.RearFan:
-                    info_Index = SystemInfoData_Index.System_FanPercent_2;
+                    info_Index = AcerSysInfo_Index.System_FanPercent_2;
                     break;
                 case Fan_Index.CPUFan:
-                    info_Index = SystemInfoData_Index.CPU_FanPercent;
+                    info_Index = AcerSysInfo_Index.CPU_FanPercent;
                     break;
             }
 
-            if (info_Index == SystemInfoData_Index.None)
+            if (info_Index == AcerSysInfo_Index.None)
             {
                 return 0;
             }

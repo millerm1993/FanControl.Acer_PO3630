@@ -32,7 +32,7 @@
         /// <summary>
         /// Datapoints from PredatorSense.exe that are to be used in the named pipe.
         /// </summary>
-        public enum SystemInfoData_Index
+        public enum AcerSysInfo_Index
         {
             None = 0,
             CPU_Temp = 1,
