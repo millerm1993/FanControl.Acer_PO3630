@@ -12,7 +12,7 @@ namespace FanControl.Acer_PO3630.Acer
         public static async Task<float> Get_SysTemp(this Temp_Index tempIndex)
         {
             int iSysTemp = 0;
-            AcerSysInfo_Index info_Index = AcerSysInfo_Index.None;
+            AcerSysInfo_Index info_Index;
 
 
             switch (tempIndex)
@@ -20,11 +20,8 @@ namespace FanControl.Acer_PO3630.Acer
                 case Temp_Index.System:
                     info_Index = AcerSysInfo_Index.System_Temp;
                     break;
-            }
-
-            if (info_Index == AcerSysInfo_Index.None)
-            {
-                return 0;
+                default:
+                    throw new Exception("Invalid Temp Index");
             }
 
             iSysTemp = await Commands.Get_AcerSysInfo(info_Index);
@@ -37,7 +34,7 @@ namespace FanControl.Acer_PO3630.Acer
         public static async Task<float> Get_FanRpm(this Fan_Index fanIndex)
         {
             int iRpm = 0;
-            AcerSysInfo_Index info_Index = AcerSysInfo_Index.None;
+            AcerSysInfo_Index info_Index;
 
             switch (fanIndex)
             {
@@ -50,11 +47,8 @@ namespace FanControl.Acer_PO3630.Acer
                 case Fan_Index.CPUFan:
                     info_Index = AcerSysInfo_Index.CPU_FanRpm;
                     break;
-            }
-
-            if (info_Index == AcerSysInfo_Index.None)
-            {
-                return 0;
+                default:
+                    throw new Exception("Invalid System Info Index");
             }
 
             iRpm = await Commands.Get_AcerSysInfo(info_Index);
@@ -68,7 +62,7 @@ namespace FanControl.Acer_PO3630.Acer
         public static async Task<int> Get_FanPercentage(this Fan_Index fanIndex)
         {
             int iPercent = 0;
-            AcerSysInfo_Index info_Index = AcerSysInfo_Index.None;
+            AcerSysInfo_Index info_Index;
 
             switch (fanIndex)
             {
@@ -81,11 +75,8 @@ namespace FanControl.Acer_PO3630.Acer
                 case Fan_Index.CPUFan:
                     info_Index = AcerSysInfo_Index.CPU_FanPercent;
                     break;
-            }
-
-            if (info_Index == AcerSysInfo_Index.None)
-            {
-                return 0;
+                default:
+                    throw new Exception("Invalid System Info Index");
             }
 
             iPercent = await Commands.Get_AcerSysInfo(info_Index);
@@ -102,11 +93,11 @@ namespace FanControl.Acer_PO3630.Acer
 
             try
             {
-                myValue = Convert.ToUInt64(value);
+                myValue = Convert.ToByte(value);
             }
-            catch
+            catch (Exception ex)
             {
-                return 0;
+                throw;
             }
 
             //Build the Command Array
@@ -136,8 +127,6 @@ namespace FanControl.Acer_PO3630.Acer
         /// </summary>
         public static async Task Set_FanAuto(this Fan_Index fanIndex)
         {
-            ulong input = 0;
-
             byte[] CommandBytes = new byte[8];
             switch (fanIndex)
             {
@@ -151,11 +140,6 @@ namespace FanControl.Acer_PO3630.Acer
                     CommandBytes[0] = 2;
                     CommandBytes[2] = 255;
                     break;
-            }
-
-            if (input == 0)
-            {
-                return;
             }
 
             await Commands.Set_AcerSysConfig(CommandBytes);

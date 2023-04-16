@@ -1,4 +1,5 @@
 ﻿using FanControl.Plugins;
+using System.Threading.Tasks;
 
 namespace FanControl.Acer_PO3630.Plugin
 {
@@ -6,11 +7,6 @@ namespace FanControl.Acer_PO3630.Plugin
     {
         private readonly IPluginLogger logger;
         private readonly IPluginDialog dialog;
-
-        public static int iPluginCount = 7;
-        public static int iPluginStagger = 5;
-        public static int GetMax() => ((iPluginCount - 1) * iPluginStagger) + 1;
-        public static int GetPos(int iIndex) => ((iIndex - 1) * iPluginStagger) + 1;
 
         public Plugin(IPluginLogger logger, IPluginDialog dialog)
         {
@@ -27,15 +23,15 @@ namespace FanControl.Acer_PO3630.Plugin
 
         public void Load(IPluginSensorsContainer _container)
         {
-            _container.ControlSensors.Add(new ControlSensor() { Id = "FrontFan", Name = "Front Fan", fan = Acer.Enums.Fan_Index.FrontFan, iIndex = 1 });
-            _container.ControlSensors.Add(new ControlSensor() { Id = "RearFan", Name = "Rear Fan", fan = Acer.Enums.Fan_Index.RearFan, iIndex = 2 });
-            _container.ControlSensors.Add(new ControlSensor() { Id = "CPUFan", Name = "CPU Fan", fan = Acer.Enums.Fan_Index.CPUFan, iIndex = 3 });
+            _container.ControlSensors.Add(new ControlSensor() { Id = "FrontFan", Name = "Front Fan", fan = Acer.Enums.Fan_Index.FrontFan});
+            _container.ControlSensors.Add(new ControlSensor() { Id = "RearFan", Name = "Rear Fan", fan = Acer.Enums.Fan_Index.RearFan});
+            _container.ControlSensors.Add(new ControlSensor() { Id = "CPUFan", Name = "CPU Fan", fan = Acer.Enums.Fan_Index.CPUFan});
 
-            _container.FanSensors.Add(new FanSensor() { Id = "FrontFan", Name = "Front Fan", fan = Acer.Enums.Fan_Index.FrontFan, iIndex = 4 });
-            _container.FanSensors.Add(new FanSensor() { Id = "RearFan", Name = "Rear Fan", fan = Acer.Enums.Fan_Index.RearFan, iIndex = 5 });
-            _container.FanSensors.Add(new FanSensor() { Id = "CPUFan", Name = "CPU Fan", fan = Acer.Enums.Fan_Index.CPUFan, iIndex = 6 });
+            _container.FanSensors.Add(new FanSensor() { Id = "FrontFan", Name = "Front Fan", fan = Acer.Enums.Fan_Index.FrontFan});
+            _container.FanSensors.Add(new FanSensor() { Id = "RearFan", Name = "Rear Fan", fan = Acer.Enums.Fan_Index.RearFan});
+            _container.FanSensors.Add(new FanSensor() { Id = "CPUFan", Name = "CPU Fan", fan = Acer.Enums.Fan_Index.CPUFan});
 
-            _container.TempSensors.Add(new TempSensor() { Id = "System", Name = "System", temp = Acer.Enums.Temp_Index.System, iIndex = 7 });
+            _container.TempSensors.Add(new TempSensor() { Id = "System", Name = "System", temp = Acer.Enums.Temp_Index.System});
 
             Update();
         }
@@ -44,8 +40,12 @@ namespace FanControl.Acer_PO3630.Plugin
         {
         }
 
-        public void Close()
+        public async void Close()
         {
+            //Empty the queue wait a bit and stop the loop
+            Acer.Commands.queue.Clear();
+            await Task.Delay(100);
+            Acer.Commands.LoopRunning = false;
         }
     }
 }

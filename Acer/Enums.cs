@@ -34,7 +34,6 @@
         /// </summary>
         public enum AcerSysInfo_Index
         {
-            None = 0,
             CPU_Temp = 1,
             CPU_FanRpm = 2,
             System_Temp = 3,

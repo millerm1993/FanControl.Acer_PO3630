@@ -13,25 +13,12 @@ namespace FanControl.Acer_PO3630.Plugin
 
         public Acer.Enums.Temp_Index temp { get; set; }
 
-        public int iIndex { get; set; }
-        private int iUpdateCount { get; set; }
-
         /// <summary>
         /// Update the "System" temperature.
         /// </summary>
-        public void Update()
+        public async void Update()
         {
-            iUpdateCount++;
-
-            if (iUpdateCount == Plugin.GetPos(iIndex))
-            {
-                Value = temp.Get_SysTemp().Result;
-            }
-
-            if (iUpdateCount == Plugin.GetMax())
-            {
-                iUpdateCount = 0;
-            }
+            Value = await temp.Get_SysTemp();
         }
     }
 }

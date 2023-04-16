@@ -13,25 +13,12 @@ namespace FanControl.Acer_PO3630.Plugin
 
         public Acer.Enums.Fan_Index fan { get; set; }
 
-        public int iIndex { get; set; }
-        private int iUpdateCount { get; set; }
-
         /// <summary>
         /// Update the fan speed percentage the system thinks the fan is doing.
         /// </summary>
-        public void Update()
+        public async void Update()
         {
-            iUpdateCount++;
-
-            if (iUpdateCount == Plugin.GetPos(iIndex))
-            {
-                Value = fan.Get_FanPercentage().Result;
-            }
-
-            if (iUpdateCount == Plugin.GetMax())
-            {
-                iUpdateCount = 0;
-            }
+            Value = await fan.Get_FanPercentage();
         }
 
         /// <summary>

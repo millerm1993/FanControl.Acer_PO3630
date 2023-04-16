@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO.Pipes;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using static FanControl.Acer_PO3630.Acer.Enums;
@@ -20,7 +22,8 @@ namespace FanControl.Acer_PO3630.Acer
             byte[] packetBytes = await DataPacketBuilder(AcerMessageType_Index.Command, commandBytes);
 
             //Send data packet to the Predator Service
-            long result = await DataPacketSender(packetBytes);
+            //long result = await DataPacketSender(packetBytes);
+            long result = await AddToPipeQueue(packetBytes);
 
             return result;
         }
@@ -42,7 +45,8 @@ namespace FanControl.Acer_PO3630.Acer
             byte[] packetBytes = await DataPacketBuilder(AcerMessageType_Index.Request, requestBytes);
 
             //Send data packet to the Predator Service
-            long result = await DataPacketSender(packetBytes);
+            //long result = await DataPacketSender(packetBytes);
+            long result = await AddToPipeQueue(packetBytes);
 
             //Translate the result
             var rtn = (int)((result >> 8) & ushort.MaxValue);
@@ -69,6 +73,94 @@ namespace FanControl.Acer_PO3630.Acer
             Array.Copy(messageBytes, 0, packetBytes, 7, messageBytes.Length);
 
             return packetBytes;
+        }
+
+        public static List<PipeQueueItem> queue { get; set; } = new List<PipeQueueItem>();
+        public static bool LoopRunning = false;
+
+        public static async Task<long> AddToPipeQueue(byte[] packetBytes)
+        {
+            var messageType = (AcerMessageType_Index)packetBytes[0];
+            byte iIdentifier = 0;
+
+            //Find our Identifier
+            switch (messageType)
+            {
+                case AcerMessageType_Index.Command:
+                    iIdentifier = packetBytes[12];
+                    break;
+                case AcerMessageType_Index.Request:
+                    iIdentifier = packetBytes[8];
+                    break;
+                default:
+                    throw new Exception("Invalid Message Type");
+            }
+
+            var queueItem = queue.Find(x => x.Identifier == iIdentifier);
+
+            //Manage our queue
+            if (queueItem != null)
+            {
+                //If something is not already in the queue and not currently executing (index 0), just update the packet.
+                queue.Find(x => x.Identifier == iIdentifier).DataBytes = packetBytes;
+            }
+            else
+            {
+                //If something is not in the queue, add it.
+                queue.Add(new PipeQueueItem() { Identifier = iIdentifier, DataBytes = packetBytes });
+            }
+
+            //Wait for a result to be loaded.
+            while (queue.Count > 0 && queue.Find(x => x.Identifier == iIdentifier).Result < 0)
+            {
+                //Make sure our loop is running
+                if (!LoopRunning)
+                {
+                    PipeLoop();
+                }
+
+                //Wait before checking again
+                await Task.Delay(100);
+            }
+
+            //Pull our result
+            var result = queue.Find(x => x.Identifier == iIdentifier).Result;
+
+            return result;
+        }
+
+        public static async void PipeLoop()
+        {
+            try
+            {
+                LoopRunning = true;
+                while (LoopRunning)
+                {
+
+                    //Let the service have a gap between requests
+                    await Task.Delay(250);
+
+                    //Make sure we have something in the queue
+                    if (queue.Count == 0)
+                    {
+                        continue;
+                    }
+
+                    //Send our packet and wait for result
+                    queue[0].Result = await DataPacketSender(queue[0].DataBytes);
+
+                    //Give our queue loops time to find and load the Result
+                    await Task.Delay(250);
+
+                    //Remove this entry from the queue
+                    queue.RemoveAll(x => x.Identifier == queue[0].Identifier);
+                }
+            }
+            catch(Exception ex)
+            {
+                LoopRunning = false;
+                throw;
+            }
         }
 
         /// <summary>
