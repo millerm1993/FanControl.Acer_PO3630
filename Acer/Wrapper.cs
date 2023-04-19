@@ -123,9 +123,19 @@ namespace FanControl.Acer_PO3630.Acer
         }
 
         /// <summary>
+        /// Set all the fans back to automatic control.
+        /// </summary>
+        public static async Task Set_AllAuto(bool bForceQueue = false)
+        {
+            await Set_FanAuto(Fan_Index.FrontFan, bForceQueue);
+            await Set_FanAuto(Fan_Index.RearFan, bForceQueue);
+            await Set_FanAuto(Fan_Index.CPUFan, bForceQueue);
+        }
+
+        /// <summary>
         /// Set the fan back to automatic control.
         /// </summary>
-        public static async Task Set_FanAuto(this Fan_Index fanIndex)
+        public static async Task Set_FanAuto(this Fan_Index fanIndex, bool bForceQueue = false)
         {
             byte[] CommandBytes = new byte[8];
             switch (fanIndex)
@@ -142,7 +152,7 @@ namespace FanControl.Acer_PO3630.Acer
                     break;
             }
 
-            await Commands.Set_AcerSysConfig(CommandBytes);
+            await Commands.Set_AcerSysConfig(CommandBytes, bForceQueue);
         }
 
         /// <summary>

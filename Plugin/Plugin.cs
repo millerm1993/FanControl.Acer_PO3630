@@ -42,10 +42,7 @@ namespace FanControl.Acer_PO3630.Plugin
 
         public async void Close()
         {
-            //Empty the queue wait a bit and stop the loop
-            Acer.Commands.queue.Clear();
-            await Task.Delay(100);
-            Acer.Commands.LoopRunning = false;
+            Acer.PipeQueue.Stop();
         }
     }
 }
