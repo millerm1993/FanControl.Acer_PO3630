@@ -52,37 +52,47 @@ namespace FanControl.Acer_PO3630.Acer
                     throw new Exception("Invalid Message Type");
             }
 
-            var queueItem = queue.Find(x => x.Identifier == iIdentifier);
+            try
+            {
+                int iItemIndex = queue.FindIndex(x => x.Identifier == iIdentifier);
 
-            //Manage our queue
-            if (queueItem != null)
-            {
-                //If something is not already in the queue and not currently executing (index 0), just update the packet.
-                queue.Find(x => x.Identifier == iIdentifier).DataBytes = packetBytes;
-            }
-            else
-            {
-                //If something is not in the queue, add it.
-                queue.Add(new PipeQueueItem() { Identifier = iIdentifier, DataBytes = packetBytes });
-            }
-
-            //Wait for a result to be loaded.
-            while (queue.Count > 0 && queue.Find(x => x.Identifier == iIdentifier).Result < 0)
-            {
-                //Make sure our loop is running
-                if (!LoopRunning)
+                //Manage our queue
+                if (iItemIndex > 1)
                 {
-                    PipeLoop();
+                    //If something is not already in the queue and not currently executing (index 0), just update the packet.
+                    queue[iItemIndex].DataBytes = packetBytes;
+                }
+                else
+                {
+                    //If something is not in the queue, add it.
+                    queue.Add(new PipeQueueItem() { Identifier = iIdentifier, DataBytes = packetBytes });
                 }
 
-                //Wait before checking again
-                await Task.Delay(25);
+                //Wait for a result to be loaded.
+                while (queue.Count > 0)
+                {
+                    //Make sure our loop is running
+                    if (!LoopRunning)
+                    {
+                        PipeLoop();
+                    }
+
+                    //If we found a result for our Identifier, return it.
+                    if (queue[0].Identifier == iIdentifier && queue[0].Result > 0)
+                    {
+                        return queue[0].Result;
+                    }
+
+                    //Wait before checking again
+                    await Task.Delay(10);
+                }
+            }
+            catch(Exception e)
+            {
+                return -100;
             }
 
-            //Pull our result
-            var result = queue.Find(x => x.Identifier == iIdentifier).Result;
-
-            return result;
+            return -1;
         }
 
         public static async void PipeLoop()
@@ -93,7 +103,7 @@ namespace FanControl.Acer_PO3630.Acer
                 while (LoopRunning)
                 {
                     //Let the service have a gap between requests
-                    await Task.Delay(100);
+                    await Task.Delay(50);
 
                     //Make sure we have something in the queue
                     if (queue.Count == 0)
@@ -105,10 +115,10 @@ namespace FanControl.Acer_PO3630.Acer
                     queue[0].Result = await DataPacketSender(queue[0].DataBytes);
 
                     //Give our queue loops time to find and load the Result
-                    await Task.Delay(100);
+                    await Task.Delay(50);
 
                     //Remove this entry from the queue
-                    queue.RemoveAll(x => x.Identifier == queue[0].Identifier);
+                    queue.RemoveAt(0);
                 }
             }
             catch (Exception ex)

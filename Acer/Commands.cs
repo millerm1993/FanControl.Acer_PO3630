@@ -22,7 +22,6 @@ namespace FanControl.Acer_PO3630.Acer
             byte[] packetBytes = await DataPacketBuilder(AcerMessageType_Index.Command, commandBytes);
 
             //Send data packet to the Predator Service
-            //long result = await DataPacketSender(packetBytes);
             long result = await PipeQueue.Add(packetBytes, bForceQueue);
 
             return result;
