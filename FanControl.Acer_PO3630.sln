@@ -1,11 +1,11 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FanControl.Acer_PO3630", "FanControl.Acer_PO3630.csproj", "{FA1AE57A-06C8-451B-8B34-E74D28F0F783}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FanControl.Acer_PO3630", "FanControl.Acer_PO3630.csproj", "{FA1AE57A-06C8-451B-8B34-E74D28F0F783}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleTest.Acer_PO3630", "..\ConsoleTest.Acer_PO3630\ConsoleTest.Acer_PO3630.csproj", "{59F28E1D-1E4C-40E9-B8E5-D1384A832857}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleTest.Acer_PO3630", "..\ConsoleTest.Acer_PO3630\ConsoleTest.Acer_PO3630.csproj", "{59F28E1D-1E4C-40E9-B8E5-D1384A832857}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

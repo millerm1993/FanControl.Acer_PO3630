@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO.Pipes;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using static FanControl.Acer_PO3630.Acer.Enums;
@@ -87,7 +85,7 @@ namespace FanControl.Acer_PO3630.Acer
                     await Task.Delay(10);
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return -100;
             }

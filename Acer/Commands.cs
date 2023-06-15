@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO.Pipes;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using static FanControl.Acer_PO3630.Acer.Enums;
 
