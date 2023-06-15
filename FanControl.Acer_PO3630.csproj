@@ -3,8 +3,8 @@
     <TargetFramework>net7.0</TargetFramework>
     <OutputType>Library</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <AssemblyTitle>FanControl.AsusWMI</AssemblyTitle>
-    <Product>FanControl.AsusWMI</Product>
+    <AssemblyTitle>FanControl.Acer_PO3630</AssemblyTitle>
+    <Product>FanControl.Acer_PO3630</Product>
     <Copyright>Copyright ©  2022</Copyright>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
